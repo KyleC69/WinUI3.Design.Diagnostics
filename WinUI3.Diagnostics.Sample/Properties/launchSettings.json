@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WinUI3.Diagnostics.Sample (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WinUI3.Diagnostics.Sample (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
