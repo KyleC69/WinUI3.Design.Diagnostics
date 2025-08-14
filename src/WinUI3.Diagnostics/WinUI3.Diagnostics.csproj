@@ -2,34 +2,67 @@
   <PropertyGroup>
     <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <RootNamespace>WinUI3.Diagnostics</RootNamespace>
-    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
-	  <Nullable>enable</Nullable>
+    <Nullable>enable</Nullable>
+
+    <!-- Versioning -->
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <InformationalVersion>0.1.0+$(SourceRevisionId)</InformationalVersion>
+
+    <!-- Packaging metadata -->
+    <PackageId>WinUI3.Diagnostics</PackageId>
+    <Authors>YourName</Authors>
+    <Company>YourCompany</Company>
+    <Description>Diagnostics support library for WinUI 3 applications.</Description>
+    <PackageTags>winui;winui3;diagnostics</PackageTags>
+    <RepositoryUrl>https://github.com/your/repo</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <!-- Build quality -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' != ''">true</ContinuousIntegrationBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <!-- Uncomment to enforce -->
+    <!-- <TreatWarningsAsErrors>true</TreatWarningsAsErrors> -->
+
+    <!-- Resource / PRI (disabled because no .resw) -->
+    <EnableDefaultPriGen>false</EnableDefaultPriGen>
+    <EnableProjectPriFile>false</EnableProjectPriFile>
+    <EnablePriResourceProcessing>false</EnablePriResourceProcessing>
+    <GenerateProjectPriFile>false</GenerateProjectPriFile>
+    <_GenerateProjectPriFile>false</_GenerateProjectPriFile>
   </PropertyGroup>
-	<PropertyGroup>
-		<!--Temporary flags-->
-		<EnableDefaultPriGen>false</EnableDefaultPriGen>
-		<EnableProjectPriFile>false</EnableProjectPriFile>
-	</PropertyGroup>
+
   <ItemGroup>
     <None Remove="Controls\DetailsPanel.xaml" />
     <None Remove="Controls\OverlayHost.xaml" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250602001" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241109000" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NET.ILLink.Tasks" Version="9.0.8" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
+
   <ItemGroup>
     <Page Update="Controls\OverlayHost.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
     <Page Update="Controls\DetailsPanel.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  
 </Project>

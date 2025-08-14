@@ -1,4 +1,4 @@
-// Project Name: WinUI3.Diagnostics
+﻿// Project Name: WinUI3.Diagnostics
 // File Name: StyleInspector.cs
 // Author: Kyle Crowder
 // Github:  OldSkoolzRoolz
@@ -6,13 +6,13 @@
 // Do not remove file headers
 
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 
 namespace WinUI3.Diagnostics;
@@ -32,8 +32,8 @@ public static class StyleInspector
     public static StyleReport Inspect(FrameworkElement fe)
     {
         Style explicitStyle = fe.Style;
-        Style implicitStyle = explicitStyle is null ? FindImplicitStyle(fe) : null;
-        Style effective = explicitStyle ?? implicitStyle;
+        Style? implicitStyle = explicitStyle is null ? FindImplicitStyle(fe) : null;
+        Style? effective = explicitStyle ?? implicitStyle;
         var chain = AggregateBasedOn(effective);
         var setters = AggregateSetters(chain);
         var isControl = fe is Control;
@@ -90,11 +90,10 @@ public static class StyleInspector
         if (dict.ThemeDictionaries is null) return null;
         var themeKey = theme switch { ElementTheme.Light => "Light", ElementTheme.Dark => "Dark", _ => "Default" };
 
-        if (dict.ThemeDictionaries.TryGetValue(themeKey, out var themed) && themed is ResourceDictionary td &&
-            td.TryGetValue(key, out var v))
-            return v;
-
-        return dict.ThemeDictionaries.TryGetValue("Default", out var def) && def is ResourceDictionary dd &&
+        return dict.ThemeDictionaries.TryGetValue(themeKey, out var themed) && themed is ResourceDictionary td &&
+            td.TryGetValue(key, out var v)
+            ? v
+            : dict.ThemeDictionaries.TryGetValue("Default", out var def) && def is ResourceDictionary dd &&
                dd.TryGetValue(key, out var dv)
             ? dv
             : null;
@@ -107,7 +106,7 @@ public static class StyleInspector
     private static IReadOnlyList<Style> AggregateBasedOn(Style? style)
     {
         var result = new List<Style>();
-        for (Style s = style; s is not null; s = s.BasedOn) result.Add(s);
+        for (Style? s = style; s is not null; s = s.BasedOn) result.Add(s);
         return result;
     }
 
@@ -120,8 +119,8 @@ public static class StyleInspector
         var stack = chain.Reverse(); // base first, derived last
         var list = new List<Setter>();
         foreach (Style s in stack)
-        foreach (Setter setter in s.Setters.OfType<Setter>())
-            list.Add(setter);
+            foreach (Setter setter in s.Setters.OfType<Setter>())
+                list.Add(setter);
         return list;
     }
 }

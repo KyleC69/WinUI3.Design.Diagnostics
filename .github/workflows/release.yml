@@ -12,7 +12,9 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+      - name: Restore Dependencies
+        run: dotnet restore src/WinUI3.Diagnostics/WinUI3.Diagnostics.csproj
       - name: Build & Pack
-        run: dotnet pack src/WinUI3.Diagnostics/WinUI3.Diagnostics.csproj -c Release -o artifacts
+        run: dotnet pack src/WinUI3.Diagnostics/WinUI3.Diagnostics.csproj -c Release -o artifacts /p:ContinuousIntegrationBuild=true
       - name: Push to NuGet
         run: dotnet nuget push artifacts/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
