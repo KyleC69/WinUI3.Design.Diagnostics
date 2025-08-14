@@ -15,7 +15,7 @@
   <PropertyGroup>
     <MinVerAutoIncrement>patch</MinVerAutoIncrement>
     <MinVerTagPrefix>v</MinVerTagPrefix>
-    <RepositoryUrl>https://github.com/your-org/WinUI3.DesignHelper</RepositoryUrl>
+    <RepositoryUrl>https://github.com/kylec69/WinUI3.DesignHelper</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
