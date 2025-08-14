@@ -1,4 +1,4 @@
-// Project Name: WinUI3.Diagnostics
+﻿// Project Name: WinUI3.Diagnostics
 // File Name: InspectorService.cs
 // Author: Kyle Crowder
 // Github:  OldSkoolzRoolz
@@ -80,22 +80,33 @@ public sealed class InspectorService
 
     private void EnsureOverlayAttached(FrameworkElement root)
     {
-        if (root is Panel p)
+        if (root is Canvas canvas)
         {
-            if (!p.Children.Contains(_overlay))
-                p.Children.Add(_overlay);
-            Canvas.SetZIndex(_overlay, int.MaxValue);
+            AttachOverlayToCanvas(canvas);
         }
         else
         {
-            var grid = new Grid();
-            FrameworkElement original = root;
-            _window.Content = null;
-            grid.Children.Add(original);
-            grid.Children.Add(_overlay);
-            _window.Content = grid;
+            AttachOverlayToGrid(root);
         }
     }
+    private void AttachOverlayToCanvas(Canvas canvas)
+    {
+        if (!canvas.Children.Contains(_overlay))
+        {
+            canvas.Children.Add(_overlay);
+        }
+        Canvas.SetZIndex(_overlay, int.MaxValue);
+    }
+    private void AttachOverlayToGrid(FrameworkElement root)
+    {
+        var grid = new Grid();
+        var originalContent = root;
+        _window.Content = null;
+        grid.Children.Add(originalContent);
+        grid.Children.Add(_overlay);
+        _window.Content = grid;
+    }
+
 
 
 
