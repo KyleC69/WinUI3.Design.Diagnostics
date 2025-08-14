@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows
     steps:
       - uses: actions/checkout@v4
 
@@ -16,7 +16,7 @@ jobs:
         with:
           dotnet-version: 9.0.x
           # Uncomment if builds fail due to unresolved version (pre-GA scenarios)
-          # dotnet-quality: 'ga'
+          dotnet-quality: 'ga'
           cache: true
 
       - name: Restore

@@ -37,7 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250602001" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\WinUI3.Diagnostics\WinUI3.Diagnostics.csproj" />
