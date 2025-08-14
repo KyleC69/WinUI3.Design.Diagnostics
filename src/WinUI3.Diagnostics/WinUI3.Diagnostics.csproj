@@ -5,17 +5,15 @@
     <RootNamespace>WinUI3.Diagnostics</RootNamespace>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
+	  <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Controls\DetailsPanel.xaml" />
     <None Remove="Controls\OverlayHost.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="NewFolder\" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="*" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="*" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Controls\OverlayHost.xaml">

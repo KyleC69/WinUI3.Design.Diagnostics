@@ -5,7 +5,6 @@
 // Distributed under Open Source License
 // Do not remove file headers
 
-
 #nullable enable
 
 using Microsoft.UI.Input;
@@ -23,9 +22,12 @@ namespace WinUI3.Diagnostics;
 
 public sealed class InspectorService
 {
-    // Static API
+    // Attached property used to associate a single InspectorService with a Window's root element
     private static readonly DependencyProperty ServiceProperty =
-        DependencyProperty.RegisterAttached("Service", typeof(InspectorService), typeof(InspectorService),
+        DependencyProperty.RegisterAttached(
+            "Service",
+            typeof(InspectorService),
+            typeof(InspectorService),
             new PropertyMetadata(null));
 
     private readonly OverlayHost _overlay;
@@ -33,28 +35,26 @@ public sealed class InspectorService
     private readonly VisualTreeExplorer _tree;
     private readonly Window _window;
 
-
-
-
-
     private InspectorService(Window window)
     {
         _window = window;
-        var root = (FrameworkElement)window.Content;
+        var windowroot = (FrameworkElement)window.Content;
+        var wrapper = new Canvas();
+        wrapper.Name = "InspectorServiceWrapper";
+        wrapper.Children.Add(windowroot);
+
         _overlay = new OverlayHost();
-        _tree = new VisualTreeExplorer(root);
-        _selector = new SelectionController(root, _overlay.HighlightCanvasField);
+        _tree = new VisualTreeExplorer(wrapper);
+        _selector = new SelectionController(wrapper, _overlay.HighlightCanvasField);
 
         _overlay.Initialize(_tree, _selector);
 
-        EnsureOverlayAttached(root);
-        HookKeys(root);
-        _selector.Selected += (_, fe) => _overlay.OnSelectionChanged(fe);
+        EnsureOverlayAttached(wrapper);
+        HookKeys(wrapper);
+
+        // Avoids capturing allocations by using a static handler that calls instance method
+        _selector.Selected += OnSelectorSelected;
     }
-
-
-
-
 
     public bool IsOpen
     {
@@ -74,73 +74,97 @@ public sealed class InspectorService
         set => _selector.Select(value);
     }
 
-
-
-
+    private void OnSelectorSelected(object? _, FrameworkElement? fe)
+    {
+        _overlay.OnSelectionChanged(fe);
+    }
 
     private void EnsureOverlayAttached(FrameworkElement root)
     {
+        // Fast-path: if root already a Canvas
         if (root is Canvas canvas)
         {
             AttachOverlayToCanvas(canvas);
+            return;
         }
-        else
+
+        // If root is any Panel (Grid, StackPanel, etc.), just add overlay instead of wrapping
+        if (root is Panel panel)
         {
-            AttachOverlayToGrid(root);
+            AttachOverlayToPanel(panel);
+            return;
         }
+
+        // Fallback: wrap non-Panel root (e.g., a Control) in a Grid
+        // WrapRootWithGrid(root);
     }
+
     private void AttachOverlayToCanvas(Canvas canvas)
     {
         if (!canvas.Children.Contains(_overlay))
         {
             canvas.Children.Add(_overlay);
         }
-        Canvas.SetZIndex(_overlay, int.MaxValue);
+        // Highest possible z-order inside the canvas
+        Canvas.SetZIndex(_overlay, 32767);
     }
-    private void AttachOverlayToGrid(FrameworkElement root)
+
+    private void AttachOverlayToPanel(Panel panel)
     {
+        if (!panel.Children.Contains(_overlay))
+        {
+            panel.Children.Add(_overlay);
+        }
+
+        // Try to put overlay visually on top when supported
+        //Panel.SetZIndex(_overlay, int.MaxValue);
+    }
+
+    private void WrapRootWithGrid(FrameworkElement originalContent)
+    {
+        // Replace once with a lightweight Grid to host overlay
         var grid = new Grid();
-        var originalContent = root;
-        _window.Content = null;
+        _window.Content = null;         // Help XAML tree detach cleanly before reparent
         grid.Children.Add(originalContent);
         grid.Children.Add(_overlay);
         _window.Content = grid;
     }
 
-
-
-
-
-
     private void HookKeys(FrameworkElement root)
     {
-        root.KeyDown += (s, e) =>
+        // Use a named handler to avoid per-subscription lambda allocation
+        root.KeyDown += OnRootKeyDown;
+    }
+
+    private void OnRootKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        // Use bitwise check instead of HasFlag (smaller/faster)
+        bool ctrl = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control) & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
+        bool alt = (InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Menu) & CoreVirtualKeyStates.Down) == CoreVirtualKeyStates.Down;
+
+        // Fast reject if no modifiers for the first two commands
+        if (ctrl && alt)
         {
-            var ctrl = InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control)
-                .HasFlag(CoreVirtualKeyStates.Down);
-            var alt = InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Menu)
-                .HasFlag(CoreVirtualKeyStates.Down);
-            if (ctrl && alt && e.Key == VirtualKey.I)
+            if (e.Key == VirtualKey.I)
             {
                 IsOpen = !IsOpen;
                 e.Handled = true;
+                return;
             }
-            else if (ctrl && alt && e.Key == VirtualKey.P)
+            if (e.Key == VirtualKey.P)
             {
                 IsPickerEnabled = !IsPickerEnabled;
                 e.Handled = true;
+                return;
             }
-            else if (e.Key == VirtualKey.Escape && IsPickerEnabled)
-            {
-                IsPickerEnabled = false;
-                e.Handled = true;
-            }
-        };
+        }
+
+        if (e.Key == VirtualKey.Escape && IsPickerEnabled)
+        {
+            IsPickerEnabled = false;
+            e.Handled = true;
+        }
     }
-
-
-
-
 
     public static InspectorService Attach(Window window)
     {
@@ -152,10 +176,6 @@ public sealed class InspectorService
         root.SetValue(ServiceProperty, svc);
         return svc;
     }
-
-
-
-
 
     public static InspectorService? Get(Window window)
     {
